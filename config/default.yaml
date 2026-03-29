@@ -1,0 +1,44 @@
+basic:
+  hidden_dim: 256
+  num_layers: 4
+  heads: 4
+  dropout: 0.2
+  readout: "mean"           # "mean" | "max" | "both"
+  num_features: 1024        # set automatically at runtime from embedder.featureLen
+
+training:
+  epochs: 100
+  learning_rate: 1.0e-4
+  weight_decay: 1.0e-5
+  batch_size: 32
+  early_stopping_patience: 10
+  scheduler: "cosine"       # "cosine" | "plateau" | "none"
+
+contrastive:
+  pretrain_epochs: 20
+  temperature: 0.07
+  projection_dim: 128
+  node_dropout_p: 0.10
+  edge_dropout_p: 0.20
+  gaussian_noise_sigma: 0.02
+
+data:
+  pdb_dir: data/processed/pdbs
+  edge_csv: data/raw/cleaned_edge.csv
+  node_csv: data/raw/cleaned_node.csv
+  scores_csv: results/ppi_scores.csv
+  contact_threshold_angstrom: 8.0
+  alphafold_fallback: true
+
+models:
+  prott5_name: "Rostlab/prot_t5_xl_uniref50"
+  esm2_name:   "facebook/esm2_t33_650M_UR50D"
+
+checkpoints:
+  prott5: "checkpoint/SpatialPPIv2_ProtT5.ckpt"
+  esm2:   "checkpoint/SpatialPPIv2_ESM.ckpt"
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  device: "cpu"

@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "spatialppiv2"
+version = "0.1.0"
+description = "Protein-protein interaction scoring via ProtT5-XL embeddings and Graph Neural Networks."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+authors = [{ name = "NaMEleSs0616" }]
+
+dependencies = [
+    "torch>=2.1",
+    "torch-geometric>=2.4",
+    "transformers>=4.38",
+    "sentencepiece>=0.1.99",
+    "biopython>=1.83",
+    "requests>=2.31",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "scikit-learn>=1.4",
+    "pyyaml>=6.0",
+    "tqdm>=4.66",
+]
+
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "pydantic>=2.0",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.4",
+    "mypy>=1.9",
+    "matplotlib>=3.8",
+    "umap-learn>=0.5",
+]
+
+[project.scripts]
+sppi-infer  = "spatialppiv2.scoring.inference:main"
+sppi-score  = "spatialppiv2.scoring.run_scoring:main"
+sppi-pdbs   = "spatialppiv2.data.download_pdbs:main"
+sppi-eval   = "spatialppiv2.evaluation.evaluate:main"
+sppi-api    = "spatialppiv2.api.server:main"
+sppi-train  = "spatialppiv2.models.train:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["spatialppiv2*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"

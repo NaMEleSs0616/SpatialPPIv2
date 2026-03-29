@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: spatialppiv2:latest
+    container_name: spatialppiv2-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount your checkpoint and PDB data from the host
+      - ./checkpoint:/app/checkpoint:ro
+      - ./data/processed/pdbs:/app/data/processed/pdbs:ro
+      - ./config:/app/config:ro
+      - ./results:/app/results
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # GPU variant — comment out the `api` service above and use this instead
+  # Requires: NVIDIA Container Toolkit + nvidia-docker2
+  api-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile.gpu
+    image: spatialppiv2-gpu:latest
+    container_name: spatialppiv2-api-gpu
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./checkpoint:/app/checkpoint:ro
+      - ./data/processed/pdbs:/app/data/processed/pdbs:ro
+      - ./config:/app/config:ro
+      - ./results:/app/results
+    environment:
+      - PYTHONUNBUFFERED=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: ["sppi-api", "--host", "0.0.0.0", "--port", "8000", "--device", "cuda"]
+    restart: unless-stopped
+    profiles:
+      - gpu

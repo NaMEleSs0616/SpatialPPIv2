@@ -1,0 +1,42 @@
+# GPU variant — requires NVIDIA Container Toolkit + nvidia-docker2
+# Build: docker build -f Dockerfile.gpu -t spatialppiv2-gpu:latest .
+# Run:   docker run --gpus all -p 8000:8000 spatialppiv2-gpu:latest
+
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime AS builder
+
+WORKDIR /build
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc g++ git \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml README.md ./
+COPY spatialppiv2/ spatialppiv2/
+
+RUN pip install --no-cache-dir --upgrade pip \
+ && pip install --no-cache-dir torch-geometric \
+ && pip install --no-cache-dir -e ".[api]"
+
+
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime AS runtime
+
+WORKDIR /app
+
+COPY --from=builder /opt/conda /opt/conda
+COPY --from=builder /build /app
+
+RUN mkdir -p config checkpoint data/processed/pdbs results
+COPY config/default.yaml config/default.yaml
+
+RUN useradd --create-home --shell /bin/bash appuser \
+ && chown -R appuser:appuser /app
+USER appuser
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
+
+ENV PYTHONUNBUFFERED=1
+
+CMD ["sppi-api", "--host", "0.0.0.0", "--port", "8000", "--device", "cuda"]
