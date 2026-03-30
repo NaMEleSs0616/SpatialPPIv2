@@ -28,7 +28,6 @@ from sklearn.metrics import (
 
 from spatialppiv2.utils.config import get_config
 
-
 # ── Metrics ───────────────────────────────────────────────────────────────────
 
 def compute_metrics(
@@ -276,7 +275,8 @@ def evaluate(
     labels = merged[label_col].values.astype(int)
     scores = merged[score_col].values.astype(float)
 
-    print(f"\nEvaluating {len(merged)} pairs  ({labels.sum()} positives, {(1-labels).sum()} negatives)")
+    n_pos, n_neg = int(labels.sum()), int((1 - labels).sum())
+    print(f"\nEvaluating {len(merged)} pairs  ({n_pos} positives, {n_neg} negatives)")
 
     if threshold is None:
         threshold, best_f1 = find_best_threshold(labels, scores, metric="f1")

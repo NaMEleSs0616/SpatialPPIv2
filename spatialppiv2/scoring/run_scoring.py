@@ -15,9 +15,9 @@ import torch
 from tqdm import tqdm
 
 from spatialppiv2.utils.config import get_config
+from spatialppiv2.utils.dataset import build_data
 from spatialppiv2.utils.model import getModel
 from spatialppiv2.utils.tool import Embed, extractPDB
-from spatialppiv2.utils.dataset import build_data
 
 
 def run_scoring(
@@ -71,9 +71,9 @@ def run_scoring(
             pdb_b = pdb_dir / f"{tgt}.pdb"
 
             if not pdb_a.exists():
-                status, score = f"missing_bait_pdb", ""
+                status, score = "missing_bait_pdb", ""
             elif not pdb_b.exists():
-                status, score = f"missing_prey_pdb", ""
+                status, score = "missing_prey_pdb", ""
             else:
                 try:
                     seq_a, coords_a = extractPDB(pdb_a)

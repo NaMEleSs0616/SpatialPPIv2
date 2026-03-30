@@ -14,22 +14,20 @@ Start with:
 
 from __future__ import annotations
 
-import time
 import argparse
+import time
 from pathlib import Path
 from typing import Any
 
 import torch
 import torch.nn.functional as F
-
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from spatialppiv2.utils.config import get_config
+from spatialppiv2.utils.dataset import build_data
 from spatialppiv2.utils.model import getModel
 from spatialppiv2.utils.tool import Embed, extractPDB
-from spatialppiv2.utils.dataset import build_data
-
 
 # ---------------------------------------------------------------------------
 # App + global state
@@ -112,8 +110,7 @@ def health() -> HealthResponse:
 @app.post("/embed", response_model=EmbedResponse)
 def embed(req: EmbedRequest) -> EmbedResponse:
     embedder: Embed = _state["embedder"]
-    model = _state["model"]
-    dev   = _state["device"]
+    dev = _state["device"]
     t0 = time.perf_counter()
 
     results: list[list[float]] = []

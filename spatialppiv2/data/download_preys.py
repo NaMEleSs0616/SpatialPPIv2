@@ -5,8 +5,7 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
-import requests
-
+import requests  # noqa: F401 (used in functions below)
 
 UNIPROT_FASTA_URL = "https://rest.uniprot.org/uniprotkb/{acc}.fasta"
 UNIPROT_SEARCH_URL = (

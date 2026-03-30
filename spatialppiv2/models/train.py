@@ -16,7 +16,8 @@ def main() -> None:
     parser.add_argument("--pretrain",         action="store_true")
     parser.add_argument("--pretrain-epochs",  type=int, default=20)
     parser.add_argument("--epochs",           type=int, default=100)
-    parser.add_argument("--device",           default="cuda" if torch.cuda.is_available() else "cpu")
+    _default_device = "cuda" if torch.cuda.is_available() else "cpu"
+    parser.add_argument("--device", default=_default_device)
     parser.add_argument("--out-ckpt",         default="checkpoint/SpatialPPIv2_ProtT5.ckpt")
     args = parser.parse_args()
 

@@ -9,7 +9,6 @@ import numpy as np
 import torch
 from torch_geometric.data import Data
 
-
 # ---------------------------------------------------------------------------
 # Contact graph builder
 # ---------------------------------------------------------------------------
@@ -29,7 +28,6 @@ def _build_contact_edges(
         edge_index : (2, E) long tensor
         edge_attr  : (E, 1) float tensor — Euclidean distances
     """
-    L = len(coords)
     diff = coords[:, None, :] - coords[None, :, :]      # (L, L, 3)
     dists = np.sqrt((diff ** 2).sum(-1))                 # (L, L)
 

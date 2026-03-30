@@ -24,7 +24,6 @@ from torch_geometric.data import Data
 
 from spatialppiv2.models.gnn import SpatialPPIv2Model
 
-
 # ---------------------------------------------------------------------------
 # Augmentations
 # ---------------------------------------------------------------------------

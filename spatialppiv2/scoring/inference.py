@@ -8,9 +8,9 @@ from pathlib import Path
 import torch
 
 from spatialppiv2.utils.config import get_config
-from spatialppiv2.utils.model import getModel
-from spatialppiv2.utils.tool import Embed, extractPDB, getConfig
 from spatialppiv2.utils.dataset import build_data
+from spatialppiv2.utils.model import getModel
+from spatialppiv2.utils.tool import Embed, extractPDB
 
 
 def predict(
@@ -64,7 +64,6 @@ def predict(
 
 
 def main() -> None:
-    cfg = get_config()
     parser = argparse.ArgumentParser(description="Single-pair PPI inference.")
     parser.add_argument("--A",       required=True, help="Path to protein A PDB.")
     parser.add_argument("--B",       required=True, help="Path to protein B PDB.")
