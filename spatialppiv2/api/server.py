@@ -61,6 +61,7 @@ def _load(device: str = "cpu", cfg_path: str | None = None) -> None:
 # Request / response schemas
 # ---------------------------------------------------------------------------
 
+
 class EmbedRequest(BaseModel):
     texts: list[str]
     normalize: bool = True
@@ -74,7 +75,7 @@ class EmbedResponse(BaseModel):
 class ScoreRequest(BaseModel):
     protein_a: str
     protein_b: str
-    input_type: str = "pdb_path"   # "pdb_path" | "sequence"
+    input_type: str = "pdb_path"  # "pdb_path" | "sequence"
     chain_a: str = "first"
     chain_b: str = "first"
 
@@ -96,6 +97,7 @@ class HealthResponse(BaseModel):
 # Routes
 # ---------------------------------------------------------------------------
 
+
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
     model = _state.get("model")
@@ -115,7 +117,7 @@ def embed(req: EmbedRequest) -> EmbedResponse:
 
     results: list[list[float]] = []
     for seq in req.texts:
-        emb = embedder.encode(seq)           # (L, D)
+        emb = embedder.encode(seq)  # (L, D)
         # Graph-level: mean pooling over residues
         h = emb.mean(0).to(dev)
         if req.normalize:
@@ -133,7 +135,7 @@ def embed(req: EmbedRequest) -> EmbedResponse:
 def score(req: ScoreRequest) -> ScoreResponse:
     embedder: Embed = _state["embedder"]
     model = _state["model"]
-    dev   = _state["device"]
+    dev = _state["device"]
     t0 = time.perf_counter()
 
     if req.input_type == "pdb_path":
@@ -168,12 +170,13 @@ def score(req: ScoreRequest) -> ScoreResponse:
 # CLI entry point
 # ---------------------------------------------------------------------------
 
+
 def main() -> None:
     import uvicorn
 
     parser = argparse.ArgumentParser(description="Start the SpatialPPIv2 API server.")
-    parser.add_argument("--host",   default="0.0.0.0")
-    parser.add_argument("--port",   type=int, default=8000)
+    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--config", default=None)
     args = parser.parse_args()

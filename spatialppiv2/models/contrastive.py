@@ -28,6 +28,7 @@ from spatialppiv2.models.gnn import SpatialPPIv2Model
 # Augmentations
 # ---------------------------------------------------------------------------
 
+
 def augment_node_dropout(data: Data, p: float = 0.10) -> Data:
     """Randomly zero-out residue node features with probability *p*."""
     data = copy.copy(data)
@@ -58,6 +59,7 @@ def augment_gaussian_noise(data: Data, sigma: float = 0.02) -> Data:
 # NT-Xent loss
 # ---------------------------------------------------------------------------
 
+
 def nt_xent_loss(
     z_i: torch.Tensor,
     z_j: torch.Tensor,
@@ -74,8 +76,8 @@ def nt_xent_loss(
         Scalar loss averaged over the batch.
     """
     B = z_i.size(0)
-    z = torch.cat([z_i, z_j], dim=0)           # (2B, D)
-    sim = (z @ z.T) / temperature              # (2B, 2B)
+    z = torch.cat([z_i, z_j], dim=0)  # (2B, D)
+    sim = (z @ z.T) / temperature  # (2B, 2B)
 
     # Mask out diagonal (self-similarity)
     mask = torch.eye(2 * B, dtype=torch.bool, device=z.device)
@@ -91,6 +93,7 @@ def nt_xent_loss(
 # Contrastive trainer
 # ---------------------------------------------------------------------------
 
+
 class ContrastiveTrainer:
     """
     Wrap a SpatialPPIv2Model for SimCLR-style pre-training.
@@ -105,12 +108,12 @@ class ContrastiveTrainer:
         cfg: dict[str, Any],
         device: torch.device | str = "cpu",
     ) -> None:
-        self.model  = model.to(device)
+        self.model = model.to(device)
         self.device = torch.device(device)
         c_cfg = cfg.get("contrastive", {})
         self.temperature = c_cfg.get("temperature", 0.07)
         proj_dim = c_cfg.get("projection_dim", 128)
-        enc_dim  = model.encoder.out_dim
+        enc_dim = model.encoder.out_dim
 
         self.projector = nn.Sequential(
             nn.Linear(enc_dim, enc_dim),
@@ -120,7 +123,7 @@ class ContrastiveTrainer:
 
         self.node_dropout_p = c_cfg.get("node_dropout_p", 0.10)
         self.edge_dropout_p = c_cfg.get("edge_dropout_p", 0.20)
-        self.noise_sigma    = c_cfg.get("gaussian_noise_sigma", 0.02)
+        self.noise_sigma = c_cfg.get("gaussian_noise_sigma", 0.02)
 
     def _augment(self, data: Data) -> Data:
         data = augment_node_dropout(data, p=self.node_dropout_p)
@@ -131,6 +134,7 @@ class ContrastiveTrainer:
     def _project(self, data: Data) -> torch.Tensor:
         """Encode a protein graph and project to the hypersphere."""
         from spatialppiv2.models.gnn import _subgraph
+
         L_a = int(data.num_nodes_A)
         mask_a = torch.zeros(L_a + int(data.num_nodes_B), dtype=torch.bool, device=data.x.device)
         mask_a[:L_a] = True

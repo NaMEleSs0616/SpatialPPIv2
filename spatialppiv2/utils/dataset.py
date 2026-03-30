@@ -13,6 +13,7 @@ from torch_geometric.data import Data
 # Contact graph builder
 # ---------------------------------------------------------------------------
 
+
 def _build_contact_edges(
     coords: np.ndarray,
     threshold: float = 8.0,
@@ -28,12 +29,12 @@ def _build_contact_edges(
         edge_index : (2, E) long tensor
         edge_attr  : (E, 1) float tensor — Euclidean distances
     """
-    diff = coords[:, None, :] - coords[None, :, :]      # (L, L, 3)
-    dists = np.sqrt((diff ** 2).sum(-1))                 # (L, L)
+    diff = coords[:, None, :] - coords[None, :, :]  # (L, L, 3)
+    dists = np.sqrt((diff**2).sum(-1))  # (L, L)
 
     src, dst = np.where((dists <= threshold) & (dists > 0))
     edge_index = torch.tensor(np.stack([src, dst], axis=0), dtype=torch.long)
-    edge_attr  = torch.tensor(dists[src, dst], dtype=torch.float32).unsqueeze(1)
+    edge_attr = torch.tensor(dists[src, dst], dtype=torch.float32).unsqueeze(1)
     return edge_index, edge_attr
 
 
@@ -67,7 +68,7 @@ def build_data(
     ei_b = ei_b + L_a  # offset node indices for protein B
 
     edge_index = torch.cat([ei_a, ei_b], dim=1)
-    edge_attr  = torch.cat([ea_a, ea_b], dim=0)
+    edge_attr = torch.cat([ea_a, ea_b], dim=0)
 
     data = Data(
         x=node_feature.float(),
@@ -93,7 +94,7 @@ def build_data_from_adj(
     """
     src, dst = np.where(adj_matrix > 0)
     edge_index = torch.tensor(np.stack([src, dst], axis=0), dtype=torch.long)
-    edge_attr  = torch.tensor(adj_matrix[src, dst], dtype=torch.float32).unsqueeze(1)
+    edge_attr = torch.tensor(adj_matrix[src, dst], dtype=torch.float32).unsqueeze(1)
     return Data(
         x=node_feature.float(),
         edge_index=edge_index,

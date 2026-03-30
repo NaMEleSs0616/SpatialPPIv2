@@ -19,13 +19,14 @@ import requests
 
 from spatialppiv2.utils.config import get_config
 
-RCSB_URL    = "https://files.rcsb.org/download/{pdb_id}.pdb"
+RCSB_URL = "https://files.rcsb.org/download/{pdb_id}.pdb"
 ALPHAFOLD_URL = "https://alphafold.ebi.ac.uk/files/AF-{uniprot_id}-F1-model_v4.pdb"
 
 
 # ---------------------------------------------------------------------------
 # Public helpers (also imported by demo.ipynb)
 # ---------------------------------------------------------------------------
+
 
 def gene_to_pdb_id(gene: str) -> str | None:
     """
@@ -114,13 +115,14 @@ def download_gene(gene: str, pdb_dir: Path, force: bool = False) -> str:
 # CLI
 # ---------------------------------------------------------------------------
 
+
 def main() -> None:
     cfg = get_config()
     parser = argparse.ArgumentParser(description="Download PDB structures.")
     parser.add_argument("--node-csv", default=cfg["data"]["node_csv"])
-    parser.add_argument("--pdb-dir",  default=cfg["data"]["pdb_dir"])
-    parser.add_argument("--gene",     default=None, help="Download a single gene.")
-    parser.add_argument("--all",      action="store_true", help="Force re-download.")
+    parser.add_argument("--pdb-dir", default=cfg["data"]["pdb_dir"])
+    parser.add_argument("--gene", default=None, help="Download a single gene.")
+    parser.add_argument("--all", action="store_true", help="Force re-download.")
     args = parser.parse_args()
 
     pdb_dir = Path(args.pdb_dir)

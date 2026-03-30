@@ -22,14 +22,14 @@ from spatialppiv2.utils.tool import Embed, extractPDB
 
 def run_scoring(
     edge_csv: str | Path,
-    pdb_dir:  str | Path,
-    out_csv:  str | Path,
-    device:   str = "cpu",
+    pdb_dir: str | Path,
+    out_csv: str | Path,
+    device: str = "cpu",
     cfg_path: str | Path | None = None,
-    ckpt:     str | Path | None = None,
+    ckpt: str | Path | None = None,
 ) -> None:
-    cfg    = get_config(cfg_path)
-    dev    = torch.device(device)
+    cfg = get_config(cfg_path)
+    dev = torch.device(device)
     pdb_dir = Path(pdb_dir)
 
     embedder = Embed(cfg["models"]["prott5_name"], dev)
@@ -87,7 +87,7 @@ def run_scoring(
                     ).to(dev)
                     with torch.no_grad():
                         prob = model(data).cpu().item()
-                    score  = f"{prob:.6f}"
+                    score = f"{prob:.6f}"
                     status = "ok"
                 except Exception as e:
                     score, status = "", f"error: {e}"
@@ -103,11 +103,11 @@ def main() -> None:
     cfg = get_config()
     parser = argparse.ArgumentParser(description="Batch PPI scoring.")
     parser.add_argument("--edge-csv", default=cfg["data"]["edge_csv"])
-    parser.add_argument("--pdb-dir",  default=cfg["data"]["pdb_dir"])
-    parser.add_argument("--out-csv",  default=cfg["data"]["scores_csv"])
-    parser.add_argument("--device",   default="cuda" if torch.cuda.is_available() else "cpu")
-    parser.add_argument("--config",   default=None)
-    parser.add_argument("--ckpt",     default=None)
+    parser.add_argument("--pdb-dir", default=cfg["data"]["pdb_dir"])
+    parser.add_argument("--out-csv", default=cfg["data"]["scores_csv"])
+    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument("--config", default=None)
+    parser.add_argument("--ckpt", default=None)
     args = parser.parse_args()
 
     run_scoring(

@@ -34,20 +34,23 @@ class GATv2Encoder(nn.Module):
         edge_dim: int = 1,
     ) -> None:
         super().__init__()
-        self.dropout  = dropout
-        self.readout  = readout
-        self.out_dim  = hidden_dim * 2 if readout == "both" else hidden_dim
+        self.dropout = dropout
+        self.readout = readout
+        self.out_dim = hidden_dim * 2 if readout == "both" else hidden_dim
 
         self.input_proj = nn.Linear(in_dim, hidden_dim)
 
-        self.convs  = nn.ModuleList()
-        self.norms  = nn.ModuleList()
+        self.convs = nn.ModuleList()
+        self.norms = nn.ModuleList()
         for _ in range(num_layers):
             self.convs.append(
                 GATv2Conv(
-                    hidden_dim, hidden_dim // heads,
-                    heads=heads, edge_dim=edge_dim,
-                    concat=True, dropout=dropout,
+                    hidden_dim,
+                    hidden_dim // heads,
+                    heads=heads,
+                    edge_dim=edge_dim,
+                    concat=True,
+                    dropout=dropout,
                 )
             )
             self.norms.append(nn.LayerNorm(hidden_dim))
@@ -68,8 +71,7 @@ class GATv2Encoder(nn.Module):
         elif self.readout == "max":
             return global_max_pool(h, batch)
         else:  # "both"
-            return torch.cat([global_mean_pool(h, batch),
-                              global_max_pool(h, batch)], dim=-1)
+            return torch.cat([global_mean_pool(h, batch), global_max_pool(h, batch)], dim=-1)
 
 
 class SpatialPPIv2Model(nn.Module):
@@ -141,6 +143,7 @@ class SpatialPPIv2Model(nn.Module):
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _subgraph(data: Data, node_mask: torch.Tensor, offset: int = 0) -> Data:
     """Extract a sub-graph for nodes selected by *node_mask*."""
     from torch_geometric.data import Data as PyGData
@@ -151,7 +154,7 @@ def _subgraph(data: Data, node_mask: torch.Tensor, offset: int = 0) -> Data:
     ei = data.edge_index
     edge_mask = node_mask[ei[0]] & node_mask[ei[1]]
     edge_index = ei[:, edge_mask] - offset
-    edge_attr  = data.edge_attr[edge_mask] if data.edge_attr is not None else None
+    edge_attr = data.edge_attr[edge_mask] if data.edge_attr is not None else None
 
     batch = torch.zeros(x.size(0), dtype=torch.long, device=x.device)
     return PyGData(x=x, edge_index=edge_index, edge_attr=edge_attr, batch=batch)

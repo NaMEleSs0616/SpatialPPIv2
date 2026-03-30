@@ -65,13 +65,13 @@ def predict(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Single-pair PPI inference.")
-    parser.add_argument("--A",       required=True, help="Path to protein A PDB.")
-    parser.add_argument("--B",       required=True, help="Path to protein B PDB.")
+    parser.add_argument("--A", required=True, help="Path to protein A PDB.")
+    parser.add_argument("--B", required=True, help="Path to protein B PDB.")
     parser.add_argument("--chain_A", default="first")
     parser.add_argument("--chain_B", default="first")
-    parser.add_argument("--device",  default="cuda" if torch.cuda.is_available() else "cpu")
-    parser.add_argument("--config",  default=None)
-    parser.add_argument("--ckpt",    default=None)
+    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument("--config", default=None)
+    parser.add_argument("--ckpt", default=None)
     args = parser.parse_args()
 
     prob = predict(

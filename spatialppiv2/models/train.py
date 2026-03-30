@@ -12,19 +12,20 @@ from spatialppiv2.utils.model import getModel
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train SpatialPPIv2.")
-    parser.add_argument("--config",           default=None)
-    parser.add_argument("--pretrain",         action="store_true")
-    parser.add_argument("--pretrain-epochs",  type=int, default=20)
-    parser.add_argument("--epochs",           type=int, default=100)
+    parser.add_argument("--config", default=None)
+    parser.add_argument("--pretrain", action="store_true")
+    parser.add_argument("--pretrain-epochs", type=int, default=20)
+    parser.add_argument("--epochs", type=int, default=100)
     _default_device = "cuda" if torch.cuda.is_available() else "cpu"
     parser.add_argument("--device", default=_default_device)
-    parser.add_argument("--out-ckpt",         default="checkpoint/SpatialPPIv2_ProtT5.ckpt")
+    parser.add_argument("--out-ckpt", default="checkpoint/SpatialPPIv2_ProtT5.ckpt")
     args = parser.parse_args()
 
     cfg = get_config(args.config)
     device = torch.device(args.device)
 
     from spatialppiv2.utils.tool import Embed
+
     embedder = Embed(cfg["models"]["prott5_name"], device)
     cfg["basic"]["num_features"] = embedder.featureLen
 

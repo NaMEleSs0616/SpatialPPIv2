@@ -30,6 +30,7 @@ from spatialppiv2.utils.config import get_config
 
 # ── Metrics ───────────────────────────────────────────────────────────────────
 
+
 def compute_metrics(
     labels: np.ndarray,
     scores: np.ndarray,
@@ -49,15 +50,15 @@ def compute_metrics(
     """
     preds = (scores >= threshold).astype(int)
     return {
-        "auc_roc":   round(float(roc_auc_score(labels, scores)), 4),
-        "aupr":      round(float(average_precision_score(labels, scores)), 4),
+        "auc_roc": round(float(roc_auc_score(labels, scores)), 4),
+        "aupr": round(float(average_precision_score(labels, scores)), 4),
         "precision": round(float(precision_score(labels, preds, zero_division=0)), 4),
-        "recall":    round(float(recall_score(labels, preds, zero_division=0)), 4),
-        "f1":        round(float(f1_score(labels, preds, zero_division=0)), 4),
+        "recall": round(float(recall_score(labels, preds, zero_division=0)), 4),
+        "f1": round(float(f1_score(labels, preds, zero_division=0)), 4),
         "threshold": threshold,
-        "n_pos":     int(labels.sum()),
-        "n_neg":     int((1 - labels).sum()),
-        "n_total":   len(labels),
+        "n_pos": int(labels.sum()),
+        "n_neg": int((1 - labels).sum()),
+        "n_total": len(labels),
     }
 
 
@@ -98,18 +99,22 @@ def find_best_threshold(
 
 # ── Plotting ──────────────────────────────────────────────────────────────────
 
+
 def _setup_style() -> None:
     try:
         import matplotlib.pyplot as plt
-        plt.rcParams.update({
-            "font.family":       "sans-serif",
-            "font.size":         12,
-            "axes.spines.top":   False,
-            "axes.spines.right": False,
-            "axes.linewidth":    0.8,
-            "grid.alpha":        0.3,
-            "figure.dpi":        150,
-        })
+
+        plt.rcParams.update(
+            {
+                "font.family": "sans-serif",
+                "font.size": 12,
+                "axes.spines.top": False,
+                "axes.spines.right": False,
+                "axes.linewidth": 0.8,
+                "grid.alpha": 0.3,
+                "figure.dpi": 150,
+            }
+        )
     except ImportError:
         pass
 
@@ -178,12 +183,23 @@ def plot_score_distribution(
     fig, ax = plt.subplots(figsize=(6, 4))
     bins = np.linspace(0, 1, 41)
 
-    ax.hist(scores[labels == 0], bins=bins, alpha=0.6,
-            color="#E24B4A", label="Non-interacting", density=True)
-    ax.hist(scores[labels == 1], bins=bins, alpha=0.6,
-            color="#1D9E75", label="Interacting",     density=True)
-    ax.axvline(threshold, lw=1.5, ls="--", color="#2C2C2A",
-               label=f"Threshold = {threshold:.2f}")
+    ax.hist(
+        scores[labels == 0],
+        bins=bins,
+        alpha=0.6,
+        color="#E24B4A",
+        label="Non-interacting",
+        density=True,
+    )
+    ax.hist(
+        scores[labels == 1],
+        bins=bins,
+        alpha=0.6,
+        color="#1D9E75",
+        label="Interacting",
+        density=True,
+    )
+    ax.axvline(threshold, lw=1.5, ls="--", color="#2C2C2A", label=f"Threshold = {threshold:.2f}")
 
     ax.set_xlabel("Predicted interaction probability")
     ax.set_ylabel("Density")
@@ -216,12 +232,11 @@ def plot_threshold_sweep(
 
     fig, ax = plt.subplots(figsize=(6, 4))
     ax.plot(thresholds, precisions, lw=2, color="#534AB7", label="Precision")
-    ax.plot(thresholds, recalls,    lw=2, color="#1D9E75", label="Recall")
-    ax.plot(thresholds, f1s,        lw=2, color="#D85A30", label="F1")
+    ax.plot(thresholds, recalls, lw=2, color="#1D9E75", label="Recall")
+    ax.plot(thresholds, f1s, lw=2, color="#D85A30", label="F1")
 
     best_t = thresholds[np.argmax(f1s)]
-    ax.axvline(best_t, lw=1.5, ls="--", color="#888780",
-               label=f"Best F1 @ {best_t:.2f}")
+    ax.axvline(best_t, lw=1.5, ls="--", color="#888780", label=f"Best F1 @ {best_t:.2f}")
 
     ax.set_xlabel("Threshold")
     ax.set_ylabel("Score")
@@ -236,6 +251,7 @@ def plot_threshold_sweep(
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
+
 
 def evaluate(
     scores_csv: str | Path,
@@ -265,8 +281,9 @@ def evaluate(
     scores_df = pd.read_csv(scores_csv)
     labels_df = pd.read_csv(labels_csv)
 
-    merged = scores_df.merge(labels_df[["source", "target", label_col]],
-                             on=["source", "target"], how="inner")
+    merged = scores_df.merge(
+        labels_df[["source", "target", label_col]], on=["source", "target"], how="inner"
+    )
     merged = merged.dropna(subset=[score_col, label_col])
 
     if merged.empty:
@@ -292,6 +309,7 @@ def evaluate(
     if save_figs:
         try:
             import matplotlib
+
             matplotlib.use("Agg")
         except ImportError:
             print("matplotlib not installed — skipping figures. pip install matplotlib")
@@ -302,9 +320,9 @@ def evaluate(
         fig_dir.mkdir(parents=True, exist_ok=True)
         print("Saving figures …")
         plot_roc(labels, scores, metrics["auc_roc"], fig_dir / "roc_curve.png")
-        plot_pr(labels, scores, metrics["aupr"],     fig_dir / "pr_curve.png")
+        plot_pr(labels, scores, metrics["aupr"], fig_dir / "pr_curve.png")
         plot_score_distribution(labels, scores, threshold, fig_dir / "score_distribution.png")
-        plot_threshold_sweep(labels, scores,         fig_dir / "threshold_sweep.png")
+        plot_threshold_sweep(labels, scores, fig_dir / "threshold_sweep.png")
 
     return metrics
 
@@ -312,15 +330,22 @@ def evaluate(
 def main():
     cfg = get_config()
     parser = argparse.ArgumentParser(description="Evaluate SpatialPPIv2 predictions.")
-    parser.add_argument("--scores",    default=cfg["data"]["scores_csv"])
-    parser.add_argument("--labels",    default=cfg["data"]["edge_csv"],
-                        help="CSV with ground-truth labels (must have 'label' column).")
+    parser.add_argument("--scores", default=cfg["data"]["scores_csv"])
+    parser.add_argument(
+        "--labels",
+        default=cfg["data"]["edge_csv"],
+        help="CSV with ground-truth labels (must have 'label' column).",
+    )
     parser.add_argument("--label-col", default="label")
     parser.add_argument("--score-col", default="spatial_score")
-    parser.add_argument("--threshold", type=float, default=None,
-                        help="Decision threshold. Defaults to best-F1 threshold.")
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=None,
+        help="Decision threshold. Defaults to best-F1 threshold.",
+    )
     parser.add_argument("--save-figs", action="store_true")
-    parser.add_argument("--fig-dir",   default="results/figures")
+    parser.add_argument("--fig-dir", default="results/figures")
     args = parser.parse_args()
 
     evaluate(
